@@ -4,5 +4,5 @@
 ###### re-written in Pythonic fashion.
 
 ### Useful Resources
-#### 
-[Python Design Patterns]: https://github.com/faif/python-patterns
+
+[Python Design Patterns](https://github.com/faif/python-patterns)
