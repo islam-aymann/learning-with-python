@@ -1,11 +1,10 @@
 from random import choice
 
+from api.models import ActivityLog
+from django.contrib.auth.models import User
+from django.db import models
 from twilio.rest import Client
 
-from django.db import models
-from django.contrib.auth.models import User
-
-from api.models import ActivityLog
 
 class TwoFactorAuthCode(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
@@ -24,7 +23,7 @@ class TwoFactorAuthCode(models.Model):
             code=code,
         )
         message = client.messages.create(
-            to=to_phone, # '+16473790277'
+            to=to_phone,  # '+16473790277'
             from_='+12057363740',
             body='Your auth code: ' + code,
         )

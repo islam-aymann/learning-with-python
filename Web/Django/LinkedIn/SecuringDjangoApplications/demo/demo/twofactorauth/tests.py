@@ -1,10 +1,9 @@
-from django.contrib.auth.models import User
-from django.test import TestCase
-
 from api.models import ActivityLog
 from api.utils import create_access_token, auth_header
-
+from django.contrib.auth.models import User
+from django.test import TestCase
 from twofactorauth.models import TwoFactorAuthCode
+
 
 class ValidateCodeTestCase(TestCase):
     def setUp(self):
@@ -18,7 +17,7 @@ class ValidateCodeTestCase(TestCase):
     def test_valid_code(self):
         response = self.client.post(
             '/api/v1/validate',
-            { 'auth_code': '123456' },
+            {'auth_code': '123456'},
             **self.auth_user,
         )
         self.assertEqual(response.status_code, 200)
@@ -32,7 +31,7 @@ class ValidateCodeTestCase(TestCase):
     def test_invalid_code(self):
         response = self.client.post(
             '/api/v1/validate',
-            { 'auth_code': 'invalid' },
+            {'auth_code': 'invalid'},
             **self.auth_user,
         )
         self.assertEqual(response.status_code, 403)

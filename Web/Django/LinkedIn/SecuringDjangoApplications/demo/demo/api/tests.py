@@ -209,37 +209,39 @@ class PackageCreateViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Package.objects.count(), expected_num_objs)
 
-# class UserDataDownloadViewTestCase(APITestCase):
-#     def setUp(self):
-#         self.user = User.objects.create(username='user', email='user@localhost')
-#         self.auth_user = auth_header(create_access_token(self.user))
-#         self.package = Package.objects.create(
-#             category='a', name='package',
-#             price=0.0, rating='medium', tour_length=1
-#         )
-#         self.now = timezone.now()
-#         self.booking = Booking.objects.create(
-#             package=self.package,
-#             start=self.now,
-#             name='Adventure',
-#             email_address=self.user.email
-#         )
-#
-#     def test_download(self):
-#         response = self.client.get(
-#             '/api/v1/download',
-#             **self.auth_user
-#         )
-#         self.assertEqual(response.status_code, 200)
-#         content = str(response.content, encoding='utf8')
-#         self.assertEqual(content, """"Data for user@localhost"
-# "Comments"
-# "Bookings"
-# "package_name","package_price","start","name"
-# "package","0.0","{}-{:02}-{:02}","Adventure"
-# "Activity Log"
-# "User #{} ""user@localhost"" saved booking #{}"
-# """.format(
-#         self.now.year, self.now.month, self.now.day,
-#         self.user.id, self.booking.id
-#     ))
+
+class UserDataDownloadViewTestCase(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create(username='user',
+                                        email='user@localhost')
+        self.auth_user = auth_header(create_access_token(self.user))
+        self.package = Package.objects.create(
+            category='a', name='package',
+            price=0.0, rating='medium', tour_length=1
+        )
+        self.now = timezone.now()
+        self.booking = Booking.objects.create(
+            package=self.package,
+            start=self.now,
+            name='Adventure',
+            email_address=self.user.email
+        )
+
+    def test_download(self):
+        response = self.client.get(
+            '/api/v1/download',
+            **self.auth_user
+        )
+        self.assertEqual(response.status_code, 200)
+        content = str(response.content, encoding='utf8')
+        self.assertEqual(content, """"Data for user@localhost"
+"Comments"
+"Bookings"
+"package_name","package_price","start","name"
+"package","0.0","{}-{:02}-{:02}","Adventure"
+"Activity Log"
+"User #{} ""user@localhost"" saved booking #{}"
+""".format(
+            self.now.year, self.now.month, self.now.day,
+            self.user.id, self.booking.id
+        ))
