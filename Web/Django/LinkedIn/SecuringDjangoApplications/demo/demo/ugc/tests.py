@@ -112,37 +112,38 @@ class JournalTestCase(TestCase):
         self.assertEqual(decrypted, b'hello world')
 
 
-# class JournalDeleteTestCase(TestCase):
-#     def setUp(self):
-#         self.user = User.objects.create(
-#             username='user', email='user@localhost'
-#         )
-#
-#     def test_csrf_token(self):
-#         journal_entry = Journal.objects.create(
-#             created_by=self.user, encrypted_text='plaintext'
-#         )
-#         client = django.test.Client(enforce_csrf_checks=True)
-#         response = client.post(
-#             '/journal/',
-#             {'entry_to_delete': journal_entry.id}
-#         )
-#         self.assertEqual(response.status_code, 403)
-#         self.assertEqual(Journal.objects.count(), 1)
-#
-#         response = client.get('/journal/')
-#         self.assertEqual(response.status_code, 200)
-#
-#         csrf_token = re.search(
-#             'name="csrfmiddlewaretoken" value="(.*?)"',
-#             str(response.content)
-#         )[1]
-#         response = client.post(
-#             '/journal/',
-#             {
-#                 'entry_to_delete': journal_entry.id,
-#                 'csrfmiddlewaretoken': csrf_token,
-#             }
-#         )
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(Journal.objects.count(), 0)
+class JournalDeleteTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            username='user', email='user@localhost'
+        )
+
+    def test_csrf_token(self):
+        journal_entry = Journal.objects.create(
+            created_by=self.user, encrypted_text='plaintext'
+        )
+        client = django.test.Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        response = client.post(
+            '/journal/',
+            {'entry_to_delete': journal_entry.id}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Journal.objects.count(), 1)
+
+        response = client.get('/journal/')
+        self.assertEqual(response.status_code, 200)
+
+        csrf_token = re.search(
+            'name="csrfmiddlewaretoken" value="(.*?)"',
+            str(response.content)
+        )[1]
+        response = client.post(
+            '/journal/',
+            {
+                'entry_to_delete': journal_entry.id,
+                'csrfmiddlewaretoken': csrf_token,
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Journal.objects.count(), 0)

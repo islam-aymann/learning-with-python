@@ -67,6 +67,7 @@ class JournalView(TemplateView):
     def post(self, request, *args, **kwargs):
         print(Journal.objects.count())
         if 'entry_to_delete' in request.POST:
+            print(request.POST)
             entry = Journal.objects.filter(
                 id=request.POST['entry_to_delete'],
                 created_by=self.get_user(),
