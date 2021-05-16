@@ -1,18 +1,18 @@
-from django.core.cache import cache
-from django.contrib.auth.models import User
-
 from demo.celery import app
-
+from django.contrib.auth.models import User
+from django.core.cache import cache
 from ugc.models import Comment
+
 
 @app.task(name='celery.ping')
 def ping():
     pass
 
+
 @app.task(bind=True)
 def create_comment(self, user_id, text):
     cache_key = '{}/comment_created'.format(user_id)
-    if cache.has_key(cache_key):
+    if cache_key in cache:
         raise self.retry()
     obj = Comment.objects.create(
         created_by=User.objects.get(id=user_id),

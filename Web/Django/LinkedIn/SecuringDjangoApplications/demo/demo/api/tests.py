@@ -1,7 +1,8 @@
-from api.models import Package, Booking
+from api.models import Package, Booking, DeletedData, restore_booking
 from api.utils import create_access_token, auth_header
 from api.utils import group_has_perm, user_has_group_perm
 from django.contrib.auth.models import User, Group
+from django.core.cache import cache
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
@@ -153,58 +154,61 @@ class BookingPerObjectPermissionTestCase(APITestCase):
         self.assertTrue(self.user.has_perm(perm, booking))
         self.assertFalse(self.other_user.has_perm(perm, booking))
         self.assertTrue(user_has_group_perm(self.other_user, perm, booking))
-#
-# class DeleteAndRestoreBooking(APITestCase):
-#     def setUp(self):
-#         self.package = Package.objects.create(
-#             category='a', name='package',
-#             price=0.0, rating='medium', tour_length=1
-#         )
-#
-#         self.user = User.objects.create(username='user', email='user@localhost')
-#
-#     def test_delete_and_restore(self):
-#         booking = Booking(
-#             package=self.package,
-#             start=timezone.now().date(),
-#             name='Adventure',
-#             email_address=self.user.email
-#         )
-#         booking.save()
-#         model_id = booking.id
-#         self.assertEqual(Booking.objects.count(), 1)
-#         self.assertEqual(DeletedData.objects.count(), 0)
-#
-#         booking.delete()
-#         self.assertEqual(Booking.objects.count(), 0)
-#         self.assertEqual(DeletedData.objects.count(), 1)
-#
-#         restore_booking(model_id)
-#         self.assertEqual(Booking.objects.count(), 1)
-#         self.assertEqual(DeletedData.objects.count(), 0)
-#
-# class PackageCreateViewTestCase(APITestCase):
-#     def test_create_is_throttled(self):
-#         data = {
-#             'category': 'Example Category',
-#             'name': 'Example',
-#             'promo': 'Cool!',
-#             'price': 1.23,
-#             'rating': 'medium',
-#             'tour_length': 5
-#         }
-#         expected_num_objs = Package.objects.count() + 1
-#         self.assertFalse(cache.has_key('package_created'))
-#
-#         response = self.client.post('/api/v1/create_package', data=data)
-#         self.assertTrue(cache.has_key('package_created'))
-#         self.assertEqual(response.status_code, 201)
-#         self.assertEqual(Package.objects.count(), expected_num_objs)
-#
-#         response = self.client.post('/api/v1/create_package', data=data)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(Package.objects.count(), expected_num_objs)
-#
+
+
+class DeleteAndRestoreBooking(APITestCase):
+    def setUp(self):
+        self.package = Package.objects.create(
+            category='a', name='package',
+            price=0.0, rating='medium', tour_length=1
+        )
+
+        self.user = User.objects.create(username='user',
+                                        email='user@localhost')
+
+    def test_delete_and_restore(self):
+        booking = Booking(
+            package=self.package,
+            start=timezone.now().date(),
+            name='Adventure',
+            email_address=self.user.email
+        )
+        booking.save()
+        model_id = booking.id
+        self.assertEqual(Booking.objects.count(), 1)
+        self.assertEqual(DeletedData.objects.count(), 0)
+
+        booking.delete()
+        self.assertEqual(Booking.objects.count(), 0)
+        self.assertEqual(DeletedData.objects.count(), 1)
+
+        restore_booking(model_id)
+        self.assertEqual(Booking.objects.count(), 1)
+        self.assertEqual(DeletedData.objects.count(), 0)
+
+
+class PackageCreateViewTestCase(APITestCase):
+    def test_create_is_throttled(self):
+        data = {
+            'category': 'Example Category',
+            'name': 'Example',
+            'promo': 'Cool!',
+            'price': 1.23,
+            'rating': 'medium',
+            'tour_length': 5
+        }
+        expected_num_objs = Package.objects.count() + 1
+        self.assertFalse('package_created' in cache)
+
+        response = self.client.post('/api/v1/create_package', data=data)
+        self.assertTrue('package_created' in cache)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Package.objects.count(), expected_num_objs)
+
+        response = self.client.post('/api/v1/create_package', data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Package.objects.count(), expected_num_objs)
+
 # class UserDataDownloadViewTestCase(APITestCase):
 #     def setUp(self):
 #         self.user = User.objects.create(username='user', email='user@localhost')

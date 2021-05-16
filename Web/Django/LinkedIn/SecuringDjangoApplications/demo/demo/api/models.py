@@ -1,20 +1,15 @@
 import django.utils.timezone
 from django.contrib.auth.models import User
+from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from guardian.shortcuts import assign_perm
 
 
 def now():
     return django.utils.timezone.now().date()
-
-
-class DeletedData(models.Model):
-    model_type = models.CharField(max_length=200)
-    model_id = models.IntegerField()
-    data = models.TextField()
 
 
 class Package(models.Model):
@@ -88,3 +83,40 @@ class PackagePermission(models.Model):
 class ActivityLog(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     action = models.CharField(max_length=300)
+
+
+@receiver(post_save, sender=Booking)
+def post_save_activity_log(sender, instance: Booking, **kwargs):
+    user = User.objects.get(email=instance.email_address)
+
+    ActivityLog.objects.create(
+        user=user,
+        action='User #{} "{}" saved booking #{}'.format(
+            user.id,
+            user.email,
+            instance.id
+        )
+    )
+
+
+class DeletedData(models.Model):
+    model_type = models.CharField(max_length=200)
+    model_id = models.IntegerField()
+    data = models.TextField()
+
+
+@receiver(post_delete, sender=Booking)
+def archive_booking(sender, instance, **kwargs):
+    data = serializers.serialize('json', [instance])
+    DeletedData.objects.create(
+        model_type='Booking',
+        model_id=instance.id,
+        data=data
+    )
+
+
+def restore_booking(id):
+    deleted = DeletedData.objects.get(model_type='Booking', model_id=id)
+    for instance in serializers.deserialize('json', deleted.data):
+        instance.save()
+        deleted.delete()
