@@ -126,33 +126,33 @@ class BookingPerObjectPermissionTestCase(APITestCase):
         response = self.client.patch(url, data, **self.auth_other_user)
         self.assertEqual(response.status_code, 403)
 
-    # def test_account_manager_group_permissions(self):
-    #     perm = 'api.change_package'
-    #     account_manager = Group.objects.get(name='account_manager')
-    #     self.assertTrue(group_has_perm(account_manager, perm, self.package))
-    #     self.assertFalse(
-    #         user_has_group_perm(self.other_user, perm, self.package))
-    #
-    #     self.other_user.groups.add(account_manager)
-    #     self.assertTrue(
-    #         user_has_group_perm(self.other_user, perm, self.package))
-    #
-    # def test_customer_support_group_permissions(self):
-    #     booking = Booking(
-    #         package=self.package,
-    #         start=timezone.now(),
-    #         name='Adventure',
-    #         email_address=self.user.email
-    #     )
-    #     booking.save()
-    #     perm = 'api.change_booking'
-    #     customer_support = Group.objects.get(name='customer_support')
-    #     self.assertTrue(group_has_perm(customer_support, perm, booking))
-    #     self.other_user.groups.add(customer_support)
-    #
-    #     self.assertTrue(self.user.has_perm(perm, booking))
-    #     self.assertFalse(self.other_user.has_perm(perm, booking))
-    #     self.assertTrue(user_has_group_perm(self.other_user, perm, booking))
+    def test_account_manager_group_permissions(self):
+        perm = 'api.change_package'
+        account_manager = Group.objects.get(name='account_manager')
+        self.assertTrue(group_has_perm(account_manager, perm, self.package))
+        self.assertFalse(
+            user_has_group_perm(self.other_user, perm, self.package))
+
+        self.other_user.groups.add(account_manager)
+        self.assertTrue(
+            user_has_group_perm(self.other_user, perm, self.package))
+
+    def test_customer_support_group_permissions(self):
+        booking = Booking(
+            package=self.package,
+            start=timezone.now(),
+            name='Adventure',
+            email_address=self.user.email
+        )
+        booking.save()
+        perm = 'api.change_booking'
+        customer_support = Group.objects.get(name='customer_support')
+        self.assertTrue(group_has_perm(customer_support, perm, booking))
+        self.other_user.groups.add(customer_support)
+
+        self.assertTrue(self.user.has_perm(perm, booking))
+        self.assertFalse(self.other_user.has_perm(perm, booking))
+        self.assertTrue(user_has_group_perm(self.other_user, perm, booking))
 #
 # class DeleteAndRestoreBooking(APITestCase):
 #     def setUp(self):

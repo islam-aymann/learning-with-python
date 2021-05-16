@@ -1,7 +1,7 @@
+from api.utils import assign_perms
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
-from api.utils import assign_perms
 
 def setup_group_permissions(sender, **kwargs):
     assign_perms({
@@ -15,6 +15,7 @@ def setup_group_permissions(sender, **kwargs):
             'api.view_booking',
         ]
     })
+
 
 class ApiConfig(AppConfig):
     name = 'api'
