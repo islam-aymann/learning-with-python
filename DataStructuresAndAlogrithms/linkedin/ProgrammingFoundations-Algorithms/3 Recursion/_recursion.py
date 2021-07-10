@@ -11,7 +11,8 @@ def factorial(num: int) -> int:
 
 
 if __name__ == '__main__':
-    print(f"5 to the power of 3 is {power(5, 3)}")
-    print(f"1 to the power of 5 is {power(1, 5)}")
-    print(f"4! is {factorial(4)}")
-    print(f"0! is {factorial(0)}")
+    # print(f"5 to the power of 3 is {power(5, 3)}")
+    # print(f"1 to the power of 5 is {power(1, 5)}")
+    # print(f"4! is {factorial(4)}")
+    # print(f"0! is {factorial(0)}")
+    print(f"200! is {factorial(10)}")
