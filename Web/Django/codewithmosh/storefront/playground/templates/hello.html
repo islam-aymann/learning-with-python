@@ -12,5 +12,23 @@
     <h1>Hello, world!</h1>
 {% endif %}
 
+<ul>
+    {% for order in orders %}
+        <li>order: #{{ order.id }} - customer: {{ order.customer.first_name }} ==>
+            {% for oi in order.orderitem_set.all %}
+                {{ oi.product.title }},
+            {% endfor %}
+        </li>
+    {% endfor %}
+</ul>
+
+
+<h1>{{ product_query }}</h1>
+
+{% for customer in customers %}
+    <h1>{{ customer.full_name }}</h1>
+{% endfor %}
+
+
 </body>
 </html>
