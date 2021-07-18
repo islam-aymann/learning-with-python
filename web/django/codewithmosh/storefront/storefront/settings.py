@@ -37,8 +37,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "playground.apps.PlaygroundConfig",
     "debug_toolbar",
+    "playground.apps.PlaygroundConfig",
+    "store.apps.StoreConfig",
+    "likes.apps.LikesConfig",
+    "tags.apps.TagsConfig",
 ]
 
 MIDDLEWARE = [
@@ -78,8 +81,11 @@ WSGI_APPLICATION = "storefront.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "storefront",
+        "HOST": "localhost",
+        "USER": "storefront",
+        "PASSWORD": "StrongPassword(?)",
     }
 }
 
